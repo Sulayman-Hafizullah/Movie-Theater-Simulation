@@ -1,0 +1,84 @@
+import java.util.concurrent.Semaphore;
+
+public class pseudocode {
+
+	private static final int NUM_CUSTOMERS = 50;
+
+	Semaphore maxCapacity = 50;
+	Semaphore boxOffice1 = 0;
+	Semaphore boxOffice2 = 0;
+	Semaphore purchasedTicket1 = 0;
+	Semaphore purchasedTicket2 = 0;
+	Semaphore custDecision = 2;
+	Semaphore officeIDs[] = { boxOffice1, boxOffice2 };
+	Semaphore lineNum[] = { purchasedTicket1, purchasedTicket2 };
+	Semaphore seatCheck = 1;
+	Semaphore ticketLine = 1;
+	Semaphore ticketTear = 0;
+	Semaphore torn = 0;
+	Semaphore concessionLine = 1;
+	Semaphore concessionWorker = 0;
+	Semaphore concessionPurchase = 0;
+
+	void customer(int id) {
+		wait(maxCapacity);
+		wait(custDecision);
+		chooseMovie();
+		int line = chooseLine();
+		int customerid = id;
+		signal(officeIDs[line]);
+		wait(lineNum[line]);
+		checkSeatAvailability();
+		signal(custDecision);
+		wait(ticketLine);
+		signal(ticketTear);
+		wait(torn);
+		boolean concessions = decideConcessions();
+		if (concession) {
+			wait(concessionLine);
+			decideOption();
+			signal(concessionWorker);
+			wait(concessionPurchase);
+			signal(concessionLine);
+		}
+		enterTheater();
+		signal(maxCapacity);
+	}
+
+	void BoxOfficeAgent(int id) {
+		while (true) {
+			wait(officeIDs[id]);
+			receiveCustomerChoice();
+			wait(seatCheck);
+			checkAvailableSeats();
+			giveTicket();
+			signal(seatCheck);
+			signal(lineNum[id]);
+		}
+	}
+
+	void TicketTaker() {
+		while (true) {
+			wait(ticketTear);
+			tearTicket();
+			signal(torn);
+		}
+	}
+
+	void ConcessionStandWorker() {
+		while (true) {
+			wait(concessionWorker);
+			giveOrder();
+			signal(concessionPurchase);
+		}
+	}
+
+	int main(String[] args) {
+		getMovieList();
+		createArrays();
+		createThreads();
+		joinThreads();
+		exit();
+
+	}
+}
